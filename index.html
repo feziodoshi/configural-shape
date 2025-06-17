@@ -24,7 +24,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-  <title>Academic Project Page</title>
+  <title>Visual Anagrams Reveal Hidden Differences in Holistic Shape Processing Across Vision Models</title>
   <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
   rel="stylesheet">
@@ -148,7 +148,31 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper tellus sed ante aliquam tempus. Etiam porttitor urna feugiat nibh elementum, et tempor dolor mattis. Donec accumsan enim augue, a vulputate nisi sodales sit amet. Proin bibendum ex eget mauris cursus euismod nec et nibh. Maecenas ac gravida ante, nec cursus dui. Vivamus purus nibh, placerat ac purus eget, sagittis vestibulum metus. Sed vestibulum bibendum lectus gravida commodo. Pellentesque auctor leo vitae sagittis suscipit.
+            Humans are able to recognize objects based on both local texture cues and the
+configuration of object parts, yet contemporary vision models primarily harvest
+local texture cues, yielding brittle, non-compositional features. Work on shape-vs-
+texture bias has pitted shape and texture representations in opposition, measuring
+shape relative to texture, ignoring the possibility that models (and humans) can
+simultaneously rely on both types of cues, and obscuring the absolute quality of
+both types of representation. We therefore recast shape evaluation as a matter of
+absolute configural competence, operationalized by the Configural Shape Score
+(CSS), which (i) measures the ability to recognize both images in Object-Anagram
+pairs that preserve local texture while permuting global part arrangement to depict
+different object categories. Across 86 convolutional, transformer, and hybrid
+models, CSS (ii) uncovers a broad spectrum of configural sensitivity with fully self-
+supervised and language-aligned transformers – exemplified by DINOv2, SigLIP2
+and EVA-CLIP – occupying the top end of the CSS spectrum. Mechanistic probes
+reveal that (iii) high-CSS networks depend on long-range interactions: radius-
+controlled attention masks abolish performance showing a distinctive U-shaped
+integration profile, and representational-similarity analyses expose a mid-depth
+transition from local to global coding. A BagNet control, whose receptive fields
+straddle patch seams, remains at chance (iv), ruling out any “border-hacking”
+strategies. Finally, (v) we show that configural shape score also predicts other shape-
+dependent evals (e.g.,foreground bias, spectral and noise robustness). Overall, we
+propose that the path toward truly robust, generalizable, and human-like vision
+systems may not lie in forcing an artificial choice between shape and texture,
+but rather in architectural and learning frameworks that seamlessly integrate both
+local-texture and global configural shape.
           </p>
         </div>
       </div>
