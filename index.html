@@ -1,352 +1,1068 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
-  <!-- Replace the content tag with appropriate information -->
-  <meta name="description" content="DESCRIPTION META TAG">
-  <meta property="og:title" content="SOCIAL MEDIA TITLE TAG"/>
-  <meta property="og:description" content="SOCIAL MEDIA DESCRIPTION TAG TAG"/>
-  <meta property="og:url" content="URL OF THE WEBSITE"/>
-  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
-  <meta property="og:image" content="static/image/your_banner_image.png" />
-  <meta property="og:image:width" content="1200"/>
-  <meta property="og:image:height" content="630"/>
-
-
-  <meta name="twitter:title" content="TWITTER BANNER TITLE META TAG">
-  <meta name="twitter:description" content="TWITTER BANNER DESCRIPTION META TAG">
-  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
-  <meta name="twitter:image" content="static/images/your_twitter_banner_image.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <!-- Keywords for your paper to be indexed by-->
-  <meta name="keywords" content="KEYWORDS SHOULD BE PLACED HERE">
+  <meta name="description" content="Vision Transformers Don't Need Trained Registers">
+  <meta name="keywords" content="interpretability, vision transformer, neurons, CLIP, DINO, VLM">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-
   <title>Visual Anagrams Reveal Hidden Differences in Holistic Shape Processing Across Vision Models</title>
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-  rel="stylesheet">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    // Set initial zoom level to 90%
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.style.zoom = "90%";
+    });
+  </script>
+  
+  <style>
+    :root {
+      --primary: #0891b2;
+      --primary-dark: #0e7490;
+      --secondary: #f97316;
+      --accent: #14b8a6;
+      --dark: #0f172a;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --gradient: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
 
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
-  <script defer src="static/js/fontawesome.all.min.js"></script>
-  <script src="static/js/bulma-carousel.min.js"></script>
-  <script src="static/js/bulma-slider.min.js"></script>
-  <script src="static/js/index.js"></script>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(45deg, #f0f9ff 25%, transparent 25%), 
+                  linear-gradient(-45deg, #f0f9ff 25%, transparent 25%), 
+                  linear-gradient(45deg, transparent 75%, #f0f9ff 75%), 
+                  linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
+      background-size: 50px 50px;
+      background-position: 0 0, 0 25px, 25px -25px, -25px 0px;
+      opacity: 0.03;
+      animation: bgMove 20s linear infinite;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0 0, 0 25px, 25px -25px, -25px 0px; }
+      100% { background-position: 50px 50px, 50px 75px, 75px 25px, 25px 50px; }
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 2rem;
+    }
+
+    .hero-content {
+      max-width: 1200px;
+      width: 100%;
+      text-align: center;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    h1 em {
+      font-style: normal;
+      position: relative;
+      display: inline-block;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h1 em::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--secondary);
+      animation: underlineExpand 1s ease-out 0.5s both;
+    }
+
+    @keyframes underlineExpand {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .authors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 2rem 0;
+      font-size: 1.1rem;
+    }
+
+    .author-block {
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .author-block:hover {
+      transform: translateY(-2px);
+    }
+
+    .author-block a {
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .author-block a:hover {
+      color: var(--primary);
+    }
+
+    .links-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .link-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .link-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .link-button i {
+      font-size: 1.2rem;
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 5rem 2rem;
+      position: relative;
+    }
+
+    .section:nth-child(even) {
+      background: white;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: var(--dark);
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    /* Image Styles */
+    .figure {
+      margin: 2rem 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+      background: white;
+      padding: 20px;
+    }
+
+    .figure:hover {
+      transform: scale(1.02);
+    }
+
+    .figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .figure-caption {
+      padding: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--gray);
+      text-align: justify;
+      line-height: 1.8;
+    }
+
+    /* Abstract Box */
+    .abstract-box {
+      background: white;
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .abstract-box:hover {
+      transform: scale(1.02);
+    }
+
+    .abstract-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--gradient);
+    }
+
+    .abstract-content {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #334155;
+    }
+
+    /* Grid Viewer Enhanced - WITH HOVER EFFECT ADDED */
+    .grid-viewer-container {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin: 2rem 0;
+      transition: transform 0.3s ease;
+    }
+
+    .grid-viewer-container:hover {
+      transform: scale(1.02);
+    }
+
+    .grid-viewport {
+      width: 100%;
+      height: 400px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 15px;
+      position: relative;
+      background: white;
+      scroll-behavior: smooth;
+      border: 2px solid #e2e8f0;
+    }
+
+    .grid-viewport::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .grid-viewport::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+
+    .grid-viewport::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    .grid-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .grid-controls button {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--gradient);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grid-controls button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    .grid-controls button:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    /* Results Table */
+    .results-table {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin: 2rem 0;
+      transition: transform 0.3s ease;
+    }
+
+    .results-table:hover {
+      transform: scale(1.02);
+    }
+
+    .results-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .results-table caption {
+      padding: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--gray);
+      text-align: center;
+      line-height: 1.6;
+      font-weight: normal;
+      caption-side: bottom;
+    }
+
+    .results-table th {
+      background: var(--gradient);
+      color: white;
+      padding: 1.5rem;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .results-table td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .results-table tr:hover {
+      background: #f8fafc;
+    }
+
+    .improvement {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Interactive Elements */
+    .interactive-demo {
+      background: white;
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: var(--shadow);
+      margin: 2rem 0;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .interactive-demo:hover {
+      transform: scale(1.02);
+    }
+
+    .demo-button {
+      padding: 1rem 2rem;
+      background: var(--gradient);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 1rem;
+    }
+
+    .demo-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .authors {
+        font-size: 1rem;
+      }
+      
+      .section {
+        padding: 3rem 1rem;
+      }
+      
+      .abstract-box {
+        padding: 2rem;
+      }
+    }
+
+    /* Floating Elements Animation */
+    .float {
+      position: absolute;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .float-1 {
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .float-2 {
+      top: 70%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    .float-3 {
+      bottom: 10%;
+      left: 5%;
+      animation-delay: 4s;
+    }
+  </style>
 </head>
 <body>
+  <div class="animated-bg"></div>
+  
+  <!-- Floating Elements -->
+  <div class="float float-1">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="40" fill="none" stroke="#0891b2" stroke-width="2" opacity="0.5"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="#14b8a6" stroke-width="2" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="float float-2">
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <rect x="10" y="10" width="60" height="60" fill="none" stroke="#f97316" stroke-width="2" opacity="0.5" transform="rotate(45 40 40)"/>
+    </svg>
+  </div>
+  <div class="float float-3">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <polygon points="60,10 110,90 10,90" fill="none" stroke="#0891b2" stroke-width="2" opacity="0.5"/>
+    </svg>
+  </div>
 
-
+  <!-- Hero Section -->
   <section class="hero">
-    <div class="hero-body">
-      <div class="container is-max-desktop">
-        <div class="columns is-centered">
-          <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title">Visual Anagrams Reveal Hidden Differences in
-              Holistic Shape Processing Across Vision Models</h1>
-            <div class="is-size-5 publication-authors">
-              <!-- Paper authors -->
-              <span class="author-block">
-                <a href="https://www.fenildoshi.com/" target="_blank">Fenil Doshi</a><sup>*</sup>,</span>
-                <span class="author-block">
-                  <a href="https://thomasfel.fr/" target="_blank">Thomas Fel</a>,</span>
-                  <span class="author-block">
-                    <a href="https://konklab.fas.harvard.edu/#" target="_blank">Talia Konkle</a>,</span>
-                    <span class="author-block">
-                      <a href="https://visionlab.harvard.edu/george/" target="_blank">George A. Alvarez</a>,</span>
-                  </div>
+    <div class="hero-content">
+      <h1>Visual Anagrams Reveal Hidden Differences in Holistic Shape Processing Across Vision Models</h1>
+      
+      <div class="authors">
+        <span class="author-block">
+          <a href="https://www.fenildoshi.com/">Fenil Doshi</a>
+        </span>
+        <span class="author-block">
+          <a href="https://thomasfel.fr/">Thomas Fel</a>
+        </span>
+        <span class="author-block">
+          <a href="https://konklab.fas.harvard.edu/#">Talia Konkle</a>
+        </span>
+        <span class="author-block">
+          <a href="https://visionlab.harvard.edu/george/bio">George Alvarez</a>
+        </span>
+      </div>
+      
+      <p style="font-size: 1.2rem; color: var(--gray); margin: 1rem 0;">Harvard University</p>
+      
+      
+      <div class="links-container">
+        <!-- <a href="https://arxiv.org/abs/2506.08010" class="link-button"> -->
+        <a href="./static/pdfs/holistic_shape_draft_d12_fd_tf_tk_gaa_justforwebsite.pdf" class="link-button" target="_blank">
+          <i class="fas fa-file-pdf"></i>
+          <span>Paper</span>
+        </a>
+        <a class="link-button">
+          <i class="fab fa-github"></i>
+          <span>Code (Coming soon)</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
-                  <div class="is-size-5 publication-authors">
-                    <span class="author-block">Harvard University<br>Conferance name and year</span>
-                    <!-- <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span> -->
-                  </div>
+  <!-- Teaser Section -->
+  <section class="section">
+    <div class="container">
+      <div class="figure">
+        <h2>tl;dr</h2>
+        <!-- <img src="./static/images/001_allmodels.png" alt="Vision Transformers Research Overview"> -->
+        <img src="./static/images/000_anagrams.gif" alt="Animated demo gif" style="width: 70%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
+        <div class="figure-caption">
+          We isolate configural shape perception using visual anagrams by holding local features constant, varying global arrangement, and testing whether vision models perceive shape as more than just a bag of parts. 
+          We find that language-aligned and self-supervised ViTs—including DINOv2, SigLIP2, and EVA-CLIP—show sensitivity to these holistic shape structures. 
+          Surprisingly, this capacity is not fully predicted by ImageNet accuracy or shape-vs-texture bias. 
+          Finally, we perform mechanistic interventions to reveal that long-range contextual interactions in intermediate processing stages support this emergent capacity for holistic object recognition.
+        </div>
+      </div>
+    </div>
+  </section>
 
-                  <div class="column has-text-centered">
-                    <div class="publication-links">
-                         <!-- Arxiv PDF link -->
-                      <span class="link-block">
-                        <a href="https://arxiv.org/pdf/<ARXIV PAPER ID>.pdf" target="_blank"
-                        class="external-link button is-normal is-rounded is-dark">
-                        <span class="icon">
-                          <i class="fas fa-file-pdf"></i>
-                        </span>
-                        <span>Paper</span>
-                      </a>
-                    </span>
+  <!-- Abstract Section -->
+  <section class="section">
+    <div class="container">
+      <h2>Abstract</h2>
+      <div class="abstract-box">
+        <div class="abstract-content">
+          Humans are able to recognize objects based on both local texture cues and the
+          configuration of object parts, yet contemporary vision models primarily harvest
+          local texture cues, yielding brittle, non-compositional features. Work on shape-vs-
+          texture bias has pitted shape and texture representations in opposition, measuring
+          shape relative to texture, ignoring the possibility that models (and humans) can
+          simultaneously rely on both types of cues, and obscuring the absolute quality of
+          both types of representation. We therefore recast shape evaluation as a matter of
+          absolute configural competence, operationalized by the Configural Shape Score
+          (CSS), which (i) measures the ability to recognize both images in Object-Anagram
+          pairs that preserve local texture while permuting global part arrangement to depict
+          different object categories. Across 86 convolutional, transformer, and hybrid
+          models, CSS (ii) uncovers a broad spectrum of configural sensitivity with fully self-
+          supervised and language-aligned transformers – exemplified by DINOv2, SigLIP2
+          and EVA-CLIP – occupying the top end of the CSS spectrum. Mechanistic probes
+          reveal that (iii) high-CSS networks depend on long-range interactions: radius-
+          controlled attention masks abolish performance showing a distinctive U-shaped
+          integration profile, and representational-similarity analyses expose a mid-depth
+          transition from local to global coding. A BagNet control, whose receptive fields
+          straddle patch seams, remains at chance (iv), ruling out any "border-hacking"
+          strategies. Finally, (v) we show that configural shape score also predicts other shape-
+          dependent evals (e.g.,foreground bias, spectral and noise robustness). Overall, we
+          propose that the path toward truly robust, generalizable, and human-like vision
+          systems may not lie in forcing an artificial choice between shape and texture,
+          but rather in architectural and learning frameworks that seamlessly integrate both
+          local-texture and global configural shape.
+        </div>
+      </div>
+    </div>
+  </section>
 
-                    <!-- Supplementary PDF link -->
-                    <span class="link-block">
-                      <a href="static/pdfs/supplementary_material.pdf" target="_blank"
-                      class="external-link button is-normal is-rounded is-dark">
-                      <span class="icon">
-                        <i class="fas fa-file-pdf"></i>
-                      </span>
-                      <span>Supplementary</span>
-                    </a>
-                  </span>
 
-                  <!-- Github link -->
-                  <span class="link-block">
-                    <a href="https://github.com/YOUR REPO HERE" target="_blank"
-                    class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="fab fa-github"></i>
-                    </span>
-                    <span>Code</span>
-                  </a>
-                </span>
+<!-- Measuring Configural Shape Perception in Vision Models Section -->
+<section class="section">
+  <div class="container">
+    <h2>Measuring Configural Shape Perception in Vision Models</h2>
+    <div class="figure">
+      <img src="./static/images/001_allmodels.png" alt="Configural Shape Score across models">
+      <div class="figure-caption">
+        We introduce the Configural Shape Score (CSS) — a metric that tests whether a model can correctly classify both images in an Object-Anagram pair. 
+        These pairs contain identical local textures but differ only in their global arrangement, making successful recognition rely on holistic processing.
+        The Configural Shape Score (CSS) reveals large variation across 86 vision models. Language-aligned (SigLIP2, EVA-CLIP) and self-supervised (DINOv2) ViTs achieve 
+        the highest scores, approaching human-level performance. 
+        While CSS correlates moderately with ImageNet top-1 accuracy (r² = 0.58), models with similar recognition accuracy often vary widely in their configural shape capacity.
+        Popular strategies to improve shape bias — like stylization, adversarial robustness, and sparsity — boost shape-vs-texture scores but have little effect on CSS. Overall, CSS and shape bias correlate only modestly (r² = 0.41).
+        Together, these findings suggest that configural shape perception is a distinct capacity, not captured by traditional benchmarks. Models that excel at CSS tend to encode relational structure rather than rely on local part statistics.
+      </div>
+    </div>
+  </div>
+</section>
 
-                <!-- ArXiv abstract Link -->
-                <span class="link-block">
-                  <a href="https://arxiv.org/abs/<ARXIV PAPER ID>" target="_blank"
-                  class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                    <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>arXiv</span>
-                </a>
-              </span>
+  <!-- What mechanism underlies high Configural Shape Scores? -->
+  <section class="section">
+    <div class="container">
+      <h2>What mechanism underlies high Configural Shape Scores?</h2>
+
+      <div class="figure">
+        <video autoplay loop muted playsinline style="width: 100%; height: auto; display: block; border-radius: 12px;">
+          <source src="./static/images/002_mech.mp4" type="video/mp4">
+        </video>
+        <div class="figure-caption">
+          While high Configural Shape Scores suggest that some models are sensitive to global shape 
+          structure, it is critical to examine how this sensitivity arises. Due to the construction 
+          of visual anagram stimuli—where identical puzzle pieces are rearranged—there exists a 
+          possibility that models exploit spurious local features that emerge at the boundaries 
+          between adjacent parts. These boundary artifacts could serve as hyper-localized cues that 
+          differ systematically across anagram pairs, enabling classification without true configural 
+          integration. As illustrated in the figure, this would represent a fundamentally different 
+          mechanism than one in which global shape features emerge through contextual modulation 
+          across multiple parts. Disambiguating these possibilities is essential for interpreting 
+          what high CSS scores truly reflect: do models encode global structure, or are they simply 
+          hacking the dataset through border-based shortcuts? Our mechanistic analyses directly 
+          address this distinction by probing how and where global configuration is computed.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+    <!-- Identifying mechanism via Attentional Ablation -->
+    <section class="section">
+      <div class="container">
+        <h2>Identifying the mechanism via Attentional Ablation </h2>
+  
+        <div class="figure">
+          <video autoplay loop muted playsinline style="width: 100%; height: auto; display: block; border-radius: 12px;">
+            <source src="./static/images/003_attn.mp4" type="video/mp4">
+          </video>
+          <div class="figure-caption">
+            To probe the mechanisms underlying configural shape perception, we developed an attentional ablation method that selectively disrupts self-attention in Vision Transformers during inference. 
+            For each attention layer, we apply radius-based attention masks that control which patches each image token can attend to. 
+            Specifically, we define two complementary conditions: in the "attend-inside" condition, each patch can only attend to nearby patches within a fixed spatial radius (e.g., 1 or 2 neighboring patches), 
+            thereby removing long-range context; in the "attend-outside" condition, each patch can only attend to distant patches beyond that radius, removing local context. Importantly, the class token retains full access in both cases.
+            We then allow information to flow forward through the remaining layers of the network and measure how these attentional perturbations affect model behavior by 
+            measuring Class token stability (i.e., how much the final class token changes under ablation compared to the unperturbed model) and Configural Shape Scores. 
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  <!-- Configural Perception relies on Long-range Contextual Interaction  -->
+  <section class="section">
+    <div class="container">
+      <h2>Configural Perception relies on Long-range Contextual Interaction</h2>
+
+      <div class="figure">
+        <img src="./static/images/004_attn_results.png" alt="Configural Shape Score across models">
+        <div class="figure-caption">
+          Our ablation results reveal that high-CSS models rely heavily on long-range contextual 
+          interactions to support configural shape perception. In DINOv2-B/14, selectively removing 
+          short-range attention ("attend inside") caused a sharp drop in bot, class token similarity 
+          and Configural Shape Score, particularly in the intermediate layers of the network. By 
+          contrast, preserving only long-range attention ("attend outside") had minimal effect, 
+          indicating that long-range interactions are not only necessary but also sufficient to 
+          maintain holistic shape representations. In comparison, the low-CSS model ViT-B/16 showed 
+          minimal disruption under the same attentional ablations—both class token similarity and 
+          CSS remained stable—highlighting that these models do not engage long-range attention in 
+          a meaningful way. Together, these findings provide direct mechanistic evidence that 
+          emergent long-range interactions play a critical role in enabling vision transformers to 
+          encode global configural structure.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+    <!-- U-Trend -->
+    <section class="section">
+      <div class="container">
+        <h2>"U-Trend" : Capacity hidden in intermediate layers</h2>
+  
+        <div class="figure">
+          <img src="./static/images/005_utrend.png" alt="Configural Shape Score across models" style="width:40%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
+          <div class="figure-caption">
+            Beyond the overall dependence on long-range interactions, we observed a striking U-shaped pattern 
+            in the effect of attentional ablations across transformer layers. In DINOv2-B/14, restricting 
+            "attend inside" had minimal impact on early and late blocks but caused 
+            substantial disruption in intermediate layers, both in terms of class token stability and 
+            Configural Shape Score. This suggests that early layers encode primarily local features, while 
+            intermediate blocks integrate spatial context to construct holistic, configuration-sensitive 
+            representations. It remains an open question if by the final layers, the model appears to consolidate this global structure 
+            into local but semantically meaningful features? This profile mirrors observations in language models, 
+            where contextual processing emerges midway through the network stack before being funneled 
+            into task-specific predictions. Together, these results identify intermediate layers as the 
+            computational bottleneck where local parts are transformed into globally coherent object 
+            representations.
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  <!-- Representational Shift from Puzzle Pieces to Categories  -->
+  <section class="section">
+    <div class="container">
+      <h2>Representational Shift from Puzzle Pieces to Categories</h2>
+
+      <div class="figure">
+        <img src="./static/images/006_rsa.png" alt="Configural Shape Score across models">
+        <div class="figure-caption">
+          To further probe the nature of configural shape representations, we performed a 
+          representational similarity analysis (RSA) using a controlled set of image pairs that 
+          independently varied object category and puzzle part composition. We compared model 
+          embeddings across three pair types: (1) images with the same puzzle pieces but different 
+          categories (anagram pairs), (2) images with different pieces and different categories 
+          (but matched in category difference with anagram pairs), and 
+          (3) images with different pieces but the same category. In high-CSS models like 
+          EVA-CLIP, early layers grouped representations based on shared puzzle components, but 
+          over the course of the network, category structure began to dominate, with final-layer 
+          embeddings showing higher similarity for same-category images—even when their parts 
+          differed. In contrast, low-CSS models like ResNet-50 retained part-driven similarity 
+          throughout all layers, with minimal emergence of category-based abstraction. To quantify 
+          this effect across models, we computed two summary metrics from the final layer: puzzle 
+          component influence and category influence. These revealed a strong positive correlation 
+          between CSS and category influence (r = 0.8), and a strong negative correlation between 
+          CSS and part-based similarity (r = –0.7). These results show that models with higher 
+          configural shape scores undergo a representational shift—from encoding low-level part 
+          information to forming category-consistent representations that transcend the individual 
+          parts.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Creating registers section -->
+  <section class="section">
+    <div class="container">
+      <h2>Creating Registers at Test-Time</h2>
+
+      <div class="figure">
+        <video autoplay loop muted playsinline style="width: 100%; height: auto; display: block; border-radius: 12px;">
+          <source src="./images/method_animation.mp4" type="video/mp4">
+        </video>
+        <div class="figure-caption">
+          We mimic the effect of learned register tokens (<a href="https://arxiv.org/abs/2309.16588">Darcet et al.</a>) without training by shifting the activations arising from
+          register neurons to a dummy token at test-time. Specifically, we initialize the test-time register to a vector of zeros, which is fed through the model along with the rest of the tokens.
+          During the forward pass, we intervene upon the register neurons by shifting the max activation to the test-time register and zeroing out the register neuron's activations for the image tokens.
+        </div>
+      </div>
+      
+      <!-- Single Container for All Grid Viewers -->
+      <div class="grid-viewer-container">
+
+        <div class="figure-caption">
+          Below, we present attention maps averaged over all heads in each layer for DINOv2 and OpenCLIP.
+          For DINOv2, which has a variant trained from scratch with registers, we also compare against trained registers. 
+          Qualitatively, test-time registers yield cleaner attention maps, resembling those produced by models trained explicitly with registers.
+          Quantitative results are provided in the paper, where we show comparable performance to trained registers.
+          
+        </div>
+
+       
+        <h3 style="text-align: center; margin-bottom: 2rem; font-size: 1.8rem; color: var(--primary);">OpenCLIP ViT-B/16</h3>
+        
+        <!-- Grid Viewer 1: OpenCLIP -->
+        <div style="display: flex; gap: 2rem; align-items: flex-start; max-width: 900px; margin: 0 auto 3rem;">
+          <div style="flex: 0 0 35%;">
+            <div style="background: white; border-radius: 15px; border: 2px solid #e2e8f0; padding: 10px; height: 250px; display: flex; align-items: center; justify-content: center;">
+              <img src="./images/openclip_input2.jpg" alt="DINOv2 Input" style="width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;">
+            </div>
+          </div>
+          <div style="flex: 1;">
+            <div class="grid-viewport" id="gridViewport2" style="height: 250px;">
+              <img src="./images/openclip_attentions2.jpg" alt="DINOv2 Analysis Grid" style="width: 70%; height: auto; display: block; margin: 0 auto;">
+            </div>
+            <div class="grid-controls">
+              <button onclick="scrollToTop('gridViewport2')">
+                <i class="fas fa-angle-double-up"></i>
+              </button>
+              <button onclick="scrollUp('gridViewport2')" id="upBtn2">
+                <i class="fas fa-angle-up"></i>
+              </button>
+              <button onclick="scrollDown('gridViewport2')" id="downBtn2">
+                <i class="fas fa-angle-down"></i>
+              </button>
+              <button onclick="scrollToBottom('gridViewport2')">
+                <i class="fas fa-angle-double-down"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; align-items: flex-start; max-width: 900px; margin: 0 auto 3rem;">
+          <div style="flex: 0 0 35%;">
+            <div style="background: white; border-radius: 15px; border: 2px solid #e2e8f0; padding: 10px; height: 250px; display: flex; align-items: center; justify-content: center;">
+              <img src="./images/openclip_input1.jpg" alt="OpenCLIP Input" style="width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;">
+            </div>
+          </div>
+          <div style="flex: 1;">
+            <div class="grid-viewport" id="gridViewport1" style="height: 250px;">
+              <img src="./images/openclip_attentions1.jpg" alt="Detailed Analysis Grid" style="width: 70%; height: auto; display: block; margin: 0 auto;">
+            </div>
+            <div class="grid-controls">
+              <button onclick="scrollToTop('gridViewport1')">
+                <i class="fas fa-angle-double-up"></i>
+              </button>
+              <button onclick="scrollUp('gridViewport1')" id="upBtn1">
+                <i class="fas fa-angle-up"></i>
+              </button>
+              <button onclick="scrollDown('gridViewport1')" id="downBtn1">
+                <i class="fas fa-angle-down"></i>
+              </button>
+              <button onclick="scrollToBottom('gridViewport1')">
+                <i class="fas fa-angle-double-down"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="text-align: center; margin-bottom: 2rem; font-size: 1.8rem; color: var(--primary);">DINOv2 ViT-L/14</h3>
+        <div style="display: flex; gap: 2rem; align-items: flex-start; max-width: 900px; margin: 0 auto 3rem;">
+          <div style="flex: 0 0 35%;">
+            <div style="background: white; border-radius: 15px; border: 2px solid #e2e8f0; padding: 10px; height: 250px; display: flex; align-items: center; justify-content: center;">
+              <img src="./images/dino_input1.jpg" alt="CLIP Input" style="width: 92%; max-height: 92%; object-fit: contain; border-radius: 8px;">
+            </div>
+          </div>
+          <div style="flex: 1;">
+            <div class="grid-viewport" id="gridViewport3" style="height: 250px;">
+              <img src="./images/dino_attentions1.jpg" alt="CLIP Analysis Grid" style="width: 95%; height: auto; display: block; margin: 0 auto;">
+            </div>
+            <div class="grid-controls">
+              <button onclick="scrollToTop('gridViewport3')">
+                <i class="fas fa-angle-double-up"></i>
+              </button>
+              <button onclick="scrollUp('gridViewport3')" id="upBtn3">
+                <i class="fas fa-angle-up"></i>
+              </button>
+              <button onclick="scrollDown('gridViewport3')" id="downBtn3">
+                <i class="fas fa-angle-down"></i>
+              </button>
+              <button onclick="scrollToBottom('gridViewport3')">
+                <i class="fas fa-angle-double-down"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; align-items: flex-start; max-width: 900px; margin: 0 auto;">
+          <div style="flex: 0 0 35%;">
+            <div style="background: white; border-radius: 15px; border: 2px solid #e2e8f0; padding: 10px; height: 250px; display: flex; align-items: center; justify-content: center;">
+              <img src="./images/dino_input2.jpg" alt="EVA-CLIP Input" style="width: 92%; max-height: 92%; object-fit: contain; border-radius: 8px;">
+            </div>
+          </div>
+          <div style="flex: 1;">
+            <div class="grid-viewport" id="gridViewport4" style="height: 250px;">
+              <img src="./images/dino_attentions2.jpg" alt="EVA-CLIP Analysis Grid" style="width: 95%; height: auto; display: block; margin: 0 auto;">
+            </div>
+            <div class="grid-controls">
+              <button onclick="scrollToTop('gridViewport4')">
+                <i class="fas fa-angle-double-up"></i>
+              </button>
+              <button onclick="scrollUp('gridViewport4')" id="upBtn4">
+                <i class="fas fa-angle-up"></i>
+              </button>
+              <button onclick="scrollDown('gridViewport4')" id="downBtn4">
+                <i class="fas fa-angle-down"></i>
+              </button>
+              <button onclick="scrollToBottom('gridViewport4')">
+                <i class="fas fa-angle-double-down"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-
-<!-- Teaser video-->
-<!-- <section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <video poster="" id="tree" autoplay controls muted loop height="100%"> -->
-        <!-- Your video here -->
-        <!-- <source src="static/videos/banner_video.mp4"
-        type="video/mp4">
-      </video>
-      <h2 class="subtitle has-text-centered">
-        Aliquam vitae elit ullamcorper tellus egestas pellentesque. Ut lacus tellus, maximus vel lectus at, placerat pretium mi. Maecenas dignissim tincidunt vestibulum. Sed consequat hendrerit nisl ut maximus. 
-      </h2>
-    </div>
-  </div>
-</section> -->
-<!-- End teaser video -->
-
-<!-- Animated figure -->
-<section class="hero is-small">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <img src="assets/object_anagrams.gif" alt="Animated demo gif">
-      <h2 class="subtitle has-text-centered">
-        Perception is driven by the global shape of objects, local parts of objects are not enough to recognize them!
-      </h2>
-    </div>
-  </div>
-</section>
-<!-- End animated figure -->
-
-
-<!-- Paper abstract -->
-<section class="section hero is-light">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            Humans are able to recognize objects based on both local texture cues and the
-configuration of object parts, yet contemporary vision models primarily harvest
-local texture cues, yielding brittle, non-compositional features. Work on shape-vs-
-texture bias has pitted shape and texture representations in opposition, measuring
-shape relative to texture, ignoring the possibility that models (and humans) can
-simultaneously rely on both types of cues, and obscuring the absolute quality of
-both types of representation. We therefore recast shape evaluation as a matter of
-absolute configural competence, operationalized by the Configural Shape Score
-(CSS), which (i) measures the ability to recognize both images in Object-Anagram
-pairs that preserve local texture while permuting global part arrangement to depict
-different object categories. Across 86 convolutional, transformer, and hybrid
-models, CSS (ii) uncovers a broad spectrum of configural sensitivity with fully self-
-supervised and language-aligned transformers – exemplified by DINOv2, SigLIP2
-and EVA-CLIP – occupying the top end of the CSS spectrum. Mechanistic probes
-reveal that (iii) high-CSS networks depend on long-range interactions: radius-
-controlled attention masks abolish performance showing a distinctive U-shaped
-integration profile, and representational-similarity analyses expose a mid-depth
-transition from local to global coding. A BagNet control, whose receptive fields
-straddle patch seams, remains at chance (iv), ruling out any “border-hacking”
-strategies. Finally, (v) we show that configural shape score also predicts other shape-
-dependent evals (e.g.,foreground bias, spectral and noise robustness). Overall, we
-propose that the path toward truly robust, generalizable, and human-like vision
-systems may not lie in forcing an artificial choice between shape and texture,
-but rather in architectural and learning frameworks that seamlessly integrate both
-local-texture and global configural shape.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- End paper abstract -->
-
-
-<!-- Image carousel -->
-<section class="hero is-small">
-  <div class="hero-body">
+  <section class="section">
     <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-       <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel1.jpg" alt="MY ALT TEXT"/>
-        <h2 class="subtitle has-text-centered">
-          First image description.
-        </h2>
-      </div>
-      <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel2.jpg" alt="MY ALT TEXT"/>
-        <h2 class="subtitle has-text-centered">
-          Second image description.
-        </h2>
-      </div>
-      <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel3.jpg" alt="MY ALT TEXT"/>
-        <h2 class="subtitle has-text-centered">
-         Third image description.
-       </h2>
-     </div>
-     <div class="item">
-      <!-- Your image here -->
-      <img src="static/images/carousel4.jpg" alt="MY ALT TEXT"/>
-      <h2 class="subtitle has-text-centered">
-        Fourth image description.
-      </h2>
-    </div>
-  </div>
-</div>
-</div>
-</section>
-<!-- End image carousel -->
-
-
-
-
-<!-- Youtube video -->
-<section class="hero is-small is-light">
-  <div class="hero-body">
-    <div class="container">
-      <!-- Paper video. -->
-      <h2 class="title is-3">Video Presentation</h2>
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
+      <h2>Adding Test-Time Registers to Vision-Language Models</h2>
+      <div class="figure">
+        <div class="figure-caption">
+          We add a test-time register to the CLIP ViT-L/14 vision encoder of <a href="https://huggingface.co/xtuner/llava-llama-3-8b">LLaVA-Llama-3-8B</a>, improving its interpretability while maintaining benchmark performance. 
+          Below, we visualize the patch norm map of the last layer of the vision encoder before projection into the language model input space. Next, we visualize the average attention across all layers and heads of the language
+          model from the response token to the visual tokens. Without a test-time register, the outlier visual tokens lead to artifacts in the language model's attention. Adding a test-time register removes
+          outliers as seen in the patch norm map, resulting in more interpretable cross-modal attention. This provides clearer insights into the model's behavior (e.g., attention is placed on the parking spot "32" which looks like "28" upside down).
           
-          <div class="publication-video">
-            <!-- Youtube embed code here -->
-            <iframe src="https://www.youtube.com/embed/JkaxUblCGz0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          </div>
         </div>
+        <img src="./images/vlm_results.jpg" alt="Vision Transformers Research Overview">
       </div>
-    </div>
-  </div>
-</section>
-<!-- End youtube video -->
 
-
-<!-- Video carousel -->
-<section class="hero is-small">
-  <div class="hero-body">
-    <div class="container">
-      <h2 class="title is-3">Another Carousel</h2>
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item item-video1">
-          <video poster="" id="video1" autoplay controls muted loop height="100%">
-            <!-- Your video file here -->
-            <source src="static/videos/carousel1.mp4"
-            type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-video2">
-          <video poster="" id="video2" autoplay controls muted loop height="100%">
-            <!-- Your video file here -->
-            <source src="static/videos/carousel2.mp4"
-            type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-video3">
-          <video poster="" id="video3" autoplay controls muted loop height="100%">\
-            <!-- Your video file here -->
-            <source src="static/videos/carousel3.mp4"
-            type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- End video carousel -->
-
-
-
-
-
-
-<!-- Paper poster -->
-<section class="hero is-small is-light">
-  <div class="hero-body">
-    <div class="container">
-      <h2 class="title">Poster</h2>
-
-      <iframe  src="static/pdfs/sample.pdf" width="100%" height="550">
-          </iframe>
-        
-      </div>
+      
     </div>
   </section>
-<!--End paper poster -->
 
 
-<!--BibTex citation -->
-  <section class="section" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <h2 class="title">BibTeX</h2>
-      <pre><code>BibTex Code Here</code></pre>
-    </div>
-</section>
-<!--End BibTex citation -->
 
-
-  <footer class="footer">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-
-          <p>
-            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
-            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-
-        </div>
+  <!-- Citation Section -->
+  <!-- <section class="section">
+    <div class="container">
+      <h2>Citation</h2>
+      <div class="abstract-box">
+        <pre style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; overflow-x: auto;"><code>
+ @misc{jiang2025visiontransformersdontneed,
+      title={Vision Transformers Don't Need Trained Registers}, 
+      author={Nick Jiang and Amil Dravid and Alexei Efros and Yossi Gandelsman},
+      year={2025},
+      eprint={2506.08010},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2506.08010}, 
+}</code></pre>
       </div>
     </div>
-  </div>
-</footer>
+  </section> -->
 
-<!-- Statcounter tracking code -->
-  
-<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+  <!-- Footer -->
+  <!-- <footer>
+    <div class="container">
+      <p style="margin-bottom: 1rem;">© 2025 UC Berkeley. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="https://arxiv.org/abs/2506.08010">
+          <i class="fas fa-file-pdf"></i>
+        </a>
+        <a href="https://github.com/nickjiang2378/test-time-registers">
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+    </div>
+  </footer> -->
 
-    <!-- End of Statcounter Code -->
-
-  </body>
-  </html>
+  <script>
+    // Grid Viewer Controls - Updated to handle multiple viewports
+    const ROW_HEIGHT = 150;
+    
+    function updateButtons(viewportId) {
+      const viewport = document.getElementById(viewportId);
+      const viewportNumber = viewportId.slice(-1);
+      const upBtn = document.getElementById('upBtn' + viewportNumber);
+      const downBtn = document.getElementById('downBtn' + viewportNumber);
+      
+      upBtn.disabled = viewport.scrollTop <= 0;
+      downBtn.disabled = viewport.scrollTop >= viewport.scrollHeight - viewport.clientHeight;
+    }
+    
+    function scrollToTop(viewportId) {
+      const viewport = document.getElementById(viewportId);
+      viewport.scrollTop = 0;
+      updateButtons(viewportId);
+    }
+    
+    function scrollToBottom(viewportId) {
+      const viewport = document.getElementById(viewportId);
+      viewport.scrollTop = viewport.scrollHeight;
+      updateButtons(viewportId);
+    }
+    
+    function scrollUp(viewportId) {
+      const viewport = document.getElementById(viewportId);
+      viewport.scrollTop -= ROW_HEIGHT;
+      updateButtons(viewportId);
+    }
+    
+    function scrollDown(viewportId) {
+      const viewport = document.getElementById(viewportId);
+      viewport.scrollTop += ROW_HEIGHT;
+      updateButtons(viewportId);
+    }
+    
+    // Initialize all grid viewers
+    ['gridViewport1', 'gridViewport2', 'gridViewport3', 'gridViewport4'].forEach(viewportId => {
+      const viewport = document.getElementById(viewportId);
+      viewport.addEventListener('scroll', () => updateButtons(viewportId));
+      updateButtons(viewportId);
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+    
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+    
+    // Observe all sections
+    document.querySelectorAll('.section').forEach(section => {
+      section.style.opacity = '0';
+      section.style.transform = 'translateY(30px)';
+      section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(section);
+    });
+  </script>
+</body>
+</html>
