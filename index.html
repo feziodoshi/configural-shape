@@ -633,6 +633,71 @@
   </section>
 
 
+    <!-- Object Anagrams-->
+    <section class="section">
+      <div class="container">
+        <div class="figure">
+          <h2>Object Anagrams</h2>
+          <div class="slider-container" style="position: relative; width: 100%; margin: 0 auto;">
+            <div class="slides">
+              <img src="./static/images/000_anagrams_eg1.gif" class="slide active" alt="Animated demo gif 1" style="width: 70%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
+              <img src="./static/images/000_anagrams_eg2.gif" class="slide active" alt="Animated demo gif 1" style="width: 70%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
+              <img src="./static/images/000_anagrams_eg3.gif" class="slide active" alt="Animated demo gif 1" style="width: 70%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
+            </div>
+            <div class="navigation" style="text-align: center; margin-top: 20px;">
+              <button onclick="prevSlide()" class="nav-btn" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 0 10px;"><i class="fas fa-chevron-left"></i> Previous</button>
+              <button onclick="nextSlide()" class="nav-btn" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 0 10px;">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="figure-caption">
+            To probe whether vision models can perceive shape as more than just a collection
+            of parts, we use Object Anagrams — pairs of images that contain the same local
+            features (i.e., identical puzzle pieces) but arranged in different global
+            configurations. These images were generated using the multi-view denoising
+            pipeline introduced by (<a href="https://arxiv.org/abs/2311.17919">Geng et al.</a>) 
+            which constructs image pairs by recombining the same 16 parts sampled from a pretrained diffusion model. Using
+            this method, we generated a dataset of 72 object-anagram pairs spanning 9
+            object categories, ensuring that each pair contains two distinct, recognizable
+            shapes constructed from the same parts.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      let currentSlide = 0;
+      const slides = document.querySelectorAll('.slide');
+      
+      // Show initial slide
+      showSlide(0);
+      
+      function showSlide(n) {
+        // Hide all slides
+        slides.forEach(slide => {
+          slide.style.display = 'none';
+          slide.style.opacity = '0';
+          slide.style.transition = 'opacity 0.5s ease-in-out';
+        });
+        
+        // Update current slide index
+        currentSlide = (n + slides.length) % slides.length;
+        
+        // Show current slide with fade effect
+        slides[currentSlide].style.display = 'block';
+        setTimeout(() => {
+          slides[currentSlide].style.opacity = '1';
+        }, 50);
+      }
+      
+      function nextSlide() {
+        showSlide(currentSlide + 1);
+      }
+      
+      function prevSlide() {
+        showSlide(currentSlide - 1);
+      }
+    </script>
+
 <!-- Measuring Configural Shape Perception in Vision Models Section -->
 <section class="section">
   <div class="container">
@@ -645,7 +710,7 @@
         The Configural Shape Score (CSS) reveals large variation across 86 vision models. Language-aligned (SigLIP2, EVA-CLIP) and self-supervised (DINOv2) ViTs achieve 
         the highest scores, approaching human-level performance. 
         While CSS correlates moderately with ImageNet top-1 accuracy (r² = 0.58), models with similar recognition accuracy often vary widely in their configural shape capacity.
-        Popular strategies to improve shape bias — like stylization, adversarial robustness, and sparsity — boost shape-vs-texture scores but have little effect on CSS. Overall, CSS and shape bias correlate only modestly (r² = 0.41).
+        Popular strategies to improve shape-vs-texture bias (<a href="https://arxiv.org/abs/1811.12231">Geirhos et al.</a>)  — like stylization, adversarial robustness, and sparsity — boost shape-vs-texture scores but have little effect on CSS. Overall, CSS and shape bias correlate only modestly (r² = 0.41).
         Together, these findings suggest that configural shape perception is a distinct capacity, not captured by traditional benchmarks. Models that excel at CSS tend to encode relational structure rather than rely on local part statistics.
       </div>
     </div>
@@ -668,9 +733,7 @@
           possibility that models exploit spurious local features that emerge at the boundaries 
           between adjacent parts. These boundary artifacts could serve as hyper-localized cues that 
           differ systematically across anagram pairs, enabling classification without true configural 
-          integration. As illustrated in the figure, this would represent a fundamentally different 
-          mechanism than one in which global shape features emerge through contextual modulation 
-          across multiple parts. Disambiguating these possibilities is essential for interpreting 
+          integration. Disambiguating these possibilities is essential for interpreting 
           what high CSS scores truly reflect: do models encode global structure, or are they simply 
           hacking the dataset through border-based shortcuts? Our mechanistic analyses directly 
           address this distinction by probing how and where global configuration is computed.
@@ -769,23 +832,81 @@
           embeddings across three pair types: (1) images with the same puzzle pieces but different 
           categories (anagram pairs), (2) images with different pieces and different categories 
           (but matched in category difference with anagram pairs), and 
-          (3) images with different pieces but the same category. In high-CSS models like 
-          EVA-CLIP, early layers grouped representations based on shared puzzle components, but 
-          over the course of the network, category structure began to dominate, with final-layer 
-          embeddings showing higher similarity for same-category images—even when their parts 
-          differed. In contrast, low-CSS models like ResNet-50 retained part-driven similarity 
-          throughout all layers, with minimal emergence of category-based abstraction. To quantify 
-          this effect across models, we computed two summary metrics from the final layer: puzzle 
-          component influence and category influence. These revealed a strong positive correlation 
-          between CSS and category influence (r = 0.8), and a strong negative correlation between 
-          CSS and part-based similarity (r = –0.7). These results show that models with higher 
-          configural shape scores undergo a representational shift—from encoding low-level part 
-          information to forming category-consistent representations that transcend the individual 
-          parts.
+          (3) images with different pieces but the same category. 
+          In high-CSS models like EVA-CLIP, early layers exhibited representational similarity based on 
+          shared puzzle components, but just past the network's midpoint, a clear switch occurs: 
+          representations begin to reflect object category more than the shared puzzle components. By 
+          the final layers, same-category pairs—even with different parts—show greater similarity than 
+          anagram pairs with identical parts, indicating that category-level structure overrides local 
+          feature similarity. In contrast, low-CSS models like ResNet-50 maintain part-based similarity 
+          throughout the hierarchy, with only marginal increases in category-level abstraction by the 
+          final layer.To quantify this effect across models, we computed two summary metrics from the final layer: puzzle 
+          component influence and category influence and compared them to the Configural Shape Score. These 
+          results showed that models with higher configural shape scores transition from representations that 
+          are initially dominated by local parts, to representations that are dominated by a holistic view 
+          that depends on the configuration of parts — i.e., encodes the image as more than the sum of its 
+          parts, specifically in terms of relationships between those parts.
         </div>
       </div>
     </div>
   </section>
+
+
+  <!-- From Configural Sensitivity to General Shape Understanding  -->
+  <section class="section">
+    <div class="container">
+      <h2>From Configural Sensitivity to General Shape Understanding</h2>
+      <div class="figure">
+        <img src="./static/images/007_shapeevals.png" alt="Configural Shape Score across models">
+        <div class="figure-caption">
+          To test whether configural shape sensitivity generalizes to other shape-relevant 
+          capacities, we evaluated whether the Configural Shape Score (CSS) predicts 
+          performance across a diverse set of shape-dependent benchmarks. These included:
+          (1) Robustness to Noise (<a href="https://arxiv.org/abs/1903.12261">Hendryks & Dietterich</a>),
+          assessing model accuracy across various corruptions; (2) Foreground-vs-Background
+          Bias (<a href="https://arxiv.org/abs/2006.09994">Xiao et al.</a>), measuring whether
+          models rely more on object than background features; (3) Phase Dependence
+          (<a href="https://2024.ccneuro.org/pdf/180_Paper_authored_ccn_fourier_non_anon.pdf">Garity et al.</a>),
+          which probes sensitivity to Fourier phase information; and (4) Critical Band
+          Masking (<a href="https://arxiv.org/abs/2309.13190">Subramanian et al.</a>), which
+          evaluates how spatial frequency filtering affects recognition. We found that CSS
+          was a strong predictor of performance across all four benchmarks, significantly
+          outperforming shape-vs-texture bias as a predictor. This suggests that models
+          with high CSS not only succeed on the anagram task, but also exhibit broader
+          shape-oriented representations.
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- From Configural Sensitivity to General Shape Understanding  -->
+<section class="section">
+  <div class="container">
+    <h2>From Configural Sensitivity to General Shape Understanding</h2>
+    <div class="figure">
+      <img src="./static/images/008_featureattribution.png" alt="Configural Shape Score across models">
+      <div class="figure-caption">
+          To complement our quantitative findings, we visualize feature attributions for object
+          images using Integrated gradients applied to a stylized ResNet50 and DINOv2-B/14. Despite
+          being trained to reduce texture reliance, the stylized ResNet50 still attends
+          to local regions — often missing the object's global outline. In
+          contrast, DINOv2-B/14 highlights coherent, whole-object maps,
+          even under challenging distortions or non-canonical appearances. These
+          visualizations offer intuitive evidence for the mechanisms inside high
+          CSS models that would lead to more complete object-level activation maps.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+    
+
+
+  
 
 
   
@@ -812,19 +933,19 @@
   </section> -->
 
   <!-- Footer -->
-  <!-- <footer>
+  <footer>
     <div class="container">
-      <p style="margin-bottom: 1rem;">© 2025 UC Berkeley. All rights reserved.</p>
+      <!-- <p style="margin-bottom: 1rem;">© 2025 UC Berkeley. All rights reserved.</p> -->
       <div class="footer-links">
-        <a href="https://arxiv.org/abs/2506.08010">
+        <a href="./static/pdfs/holistic_shape_draft_d12_fd_tf_tk_gaa_justforwebsite.pdf" target="_blank">
           <i class="fas fa-file-pdf"></i>
         </a>
-        <a href="https://github.com/nickjiang2378/test-time-registers">
+        <!-- <a href="https://github.com/nickjiang2378/test-time-registers">
           <i class="fab fa-github"></i>
-        </a>
+        </a> -->
       </div>
     </div>
-  </footer> -->
+  </footer>
 
   <script>
     // Grid Viewer Controls - Updated to handle multiple viewports
