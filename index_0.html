@@ -587,8 +587,8 @@
         <!-- <img src="./static/images/001_allmodels.png" alt="Vision Transformers Research Overview"> -->
         <img src="./static/images/000_anagrams.gif" alt="Animated demo gif" style="width: 70%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
         <div class="figure-caption">
-          We isolate configural shape perception using visual anagrams by holding local parts constant, varying global arrangement, and testing whether vision models perceive shape as more than just a bag of parts. 
-          We find that language-aligned and self-supervised ViTs show sensitivity to these holistic shape structures. 
+          We isolate configural shape perception using visual anagrams by holding local features constant, varying global arrangement, and testing whether vision models perceive shape as more than just a bag of parts. 
+          We find that language-aligned and self-supervised ViTs—including DINOv2, SigLIP2, and EVA-CLIP—show sensitivity to these holistic shape structures. 
           Surprisingly, this capacity is not fully predicted by ImageNet accuracy or shape-vs-texture bias. 
           Finally, we perform mechanistic interventions to reveal that long-range contextual interactions in intermediate processing stages support this emergent capacity for holistic object recognition.
         </div>
@@ -705,19 +705,13 @@
     <div class="figure">
       <img src="./static/images/001_allmodels.png" alt="Configural Shape Score across models">
       <div class="figure-caption">
-        The Configural Shape Score (CSS) tests whether a model can correctly classify both images in an 
-        object-anagram pair — images made from the same local patches but arranged into different global 
-        shapes. This makes CSS a stringent test of holistic processing: local texture shortcuts won't help.
-
-        Across 86 vision models, CSS reveals striking variation. The top performers — self-supervised ViTs 
-        like DINOv2 and language-aligned models like SigLIP2 and EVA-CLIP — approach human-level scores. 
-        In contrast, many supervised models with similar ImageNet accuracy perform far worse, highlighting 
-        that recognition performance alone does not guarantee configural shape sensitivity.
-
-        Efforts to improve "shape bias" through stylization, adversarial robustness, or sparsity offer 
-        little benefit here. While shape-vs-texture bias and CSS are moderately correlated, they capture distinct 
-        aspects of model behavior. CSS reflects a model's ability to integrate relational structure — not 
-        just a preference for shape over texture.
+        We introduce the Configural Shape Score (CSS) — a metric that tests whether a model can correctly classify both images in an Object-Anagram pair. 
+        These pairs contain identical local textures but differ only in their global arrangement, making successful recognition rely on holistic processing.
+        The Configural Shape Score (CSS) reveals large variation across 86 vision models. Language-aligned (SigLIP2, EVA-CLIP) and self-supervised (DINOv2) ViTs achieve 
+        the highest scores, approaching human-level performance. 
+        While CSS correlates moderately with ImageNet top-1 accuracy (r² = 0.58), models with similar recognition accuracy often vary widely in their configural shape capacity.
+        Popular strategies to improve shape-vs-texture bias (<a href="https://arxiv.org/abs/1811.12231">Geirhos et al.</a>)  — like stylization, adversarial robustness, and sparsity — boost shape-vs-texture scores but have little effect on CSS. Overall, CSS and shape bias correlate only modestly (r² = 0.41).
+        Together, these findings suggest that configural shape perception is a distinct capacity, not captured by traditional benchmarks. Models that excel at CSS tend to encode relational structure rather than rely on local part statistics.
       </div>
     </div>
   </div>
@@ -733,9 +727,16 @@
           <source src="./static/images/002_mech.mp4" type="video/mp4">
         </video>
         <div class="figure-caption">
-          Models can cheat on configural shape tasks by exploiting subtle boundary artifacts between 
-          parts, rather than truly processing global structure. Our mechanistic analysis disentangles this 
-          shortcut from genuine configural sensitivity by probing how and where global configuration is computed.
+          While high Configural Shape Scores suggest that some models are sensitive to global shape 
+          structure, it is critical to examine how this sensitivity arises. Due to the construction 
+          of visual anagram stimuli—where identical puzzle pieces are rearranged—there exists a 
+          possibility that models exploit spurious local features that emerge at the boundaries 
+          between adjacent parts. These boundary artifacts could serve as hyper-localized cues that 
+          differ systematically across anagram pairs, enabling classification without true configural 
+          integration. Disambiguating these possibilities is essential for interpreting 
+          what high CSS scores truly reflect: do models encode global structure, or are they simply 
+          hacking the dataset through border-based shortcuts? Our mechanistic analyses directly 
+          address this distinction by probing how and where global configuration is computed.
         </div>
       </div>
     </div>
@@ -752,12 +753,12 @@
             <source src="./static/images/003_attn.mp4" type="video/mp4">
           </video>
           <div class="figure-caption">
-            We developed an attentional ablation method to test whether Vision Transformers rely on local or 
-            long-range interactions for configural shape perception. By masking self-attention for patch tokens 
-            within each layer, we selectively removed either nearby or distant patch-to-patch interactions, 
-            while keeping the class token's attention fully intact. This selective disruption isolates the 
-            causal role of local vs. global context. We then measured how these changes affected both the 
-            final class token and the model's Configural Shape Score.
+            To probe the mechanisms underlying configural shape perception, we developed an attentional ablation method that selectively disrupts self-attention in Vision Transformers during inference. 
+            For each attention layer, we apply radius-based attention masks that control which patches each image token can attend to. 
+            Specifically, we define two complementary conditions: in the "attend-inside" condition, each patch can only attend to nearby patches within a fixed spatial radius (e.g., 1 or 2 neighboring patches), 
+            thereby removing long-range context; in the "attend-outside" condition, each patch can only attend to distant patches beyond that radius, removing local context. Importantly, the class token retains full access in both cases.
+            We then allow information to flow forward through the remaining layers of the network and measure how these attentional perturbations affect model behavior by 
+            measuring Class token stability (i.e., how much the final class token changes under ablation compared to the unperturbed model) and Configural Shape Scores. 
           </div>
         </div>
       </div>
@@ -772,13 +773,17 @@
       <div class="figure">
         <img src="./static/images/004_attn_results.png" alt="Configural Shape Score across models">
         <div class="figure-caption">
-          Ablation results show that high-CSS models like DINOv2-B/14 depend heavily on long-range 
-          attention to perceive global shape. When long-range interactions were removed ("attend inside"), 
-          both class token stability and Configural Shape Scores dropped sharply — especially in 
-          intermediate layers. But when these interactions were preserved ("attend outside"), performance 
-          remained largely intact. In contrast, low-CSS models like ViT-B/16 were not affected as much 
-          by the same ablations. These findings provide direct mechanistic evidence that emergent 
-          long-range interactions play a critical role in enabling vision transformers to successfully 
+          Our ablation results reveal that high-CSS models rely heavily on long-range contextual 
+          interactions to support configural shape perception. In DINOv2-B/14, selectively removing 
+          short-range attention ("attend inside") caused a sharp drop in bot, class token similarity 
+          and Configural Shape Score, particularly in the intermediate layers of the network. By 
+          contrast, preserving only long-range attention ("attend outside") had minimal effect, 
+          indicating that long-range interactions are not only necessary but also sufficient to 
+          maintain holistic shape representations. In comparison, the low-CSS model ViT-B/16 showed 
+          minimal disruption under the same attentional ablations—both class token similarity and 
+          CSS remained stable—highlighting that these models do not engage long-range attention in 
+          a meaningful way. Together, these findings provide direct mechanistic evidence that 
+          emergent long-range interactions play a critical role in enabling vision transformers to 
           encode global configural structure.
         </div>
       </div>
@@ -791,16 +796,22 @@
     <section class="section">
       <div class="container">
         <h2>"U-Trend" : Capacity hidden in intermediate layers</h2>
+  
         <div class="figure">
           <img src="./static/images/005_utrend.png" alt="Configural Shape Score across models" style="width:40%; height: auto; display: block; border-radius: 12px; margin: 0 auto;">
           <div class="figure-caption">
-            Ablation results revealed a striking U-shaped pattern across transformer layers. In DINOv2-B/14,
-            removing long-range attention ("attend inside") had little effect in early and late layers, but
-            caused major disruption in the middle — reducing both class token stability and Configural Shape
-            Scores. This suggests that early layers encode primarily local features, while intermediate blocks
-            integrate spatial context to construct holistic representations. Just like contextual processing
-            in language models, configural understanding emerges midway through the stack — pointing to the
-            intermediate layers as the bottleneck for building globally coherent object representations.
+            Beyond the overall dependence on long-range interactions, we observed a striking U-shaped pattern 
+            in the effect of attentional ablations across transformer layers. In DINOv2-B/14, restricting 
+            "attend inside" had minimal impact on early and late blocks but caused 
+            substantial disruption in intermediate layers, both in terms of class token stability and 
+            Configural Shape Score. This suggests that early layers encode primarily local features, while 
+            intermediate blocks integrate spatial context to construct holistic, configuration-sensitive 
+            representations. It remains an open question if by the final layers, the model appears to consolidate this global structure 
+            into local but semantically meaningful features? This profile mirrors observations in language models, 
+            where contextual processing emerges midway through the network stack before being funneled 
+            into task-specific predictions. Together, these results identify intermediate layers as the 
+            computational bottleneck where local parts are transformed into globally coherent object 
+            representations.
           </div>
         </div>
       </div>
@@ -815,15 +826,26 @@
       <div class="figure">
         <img src="./static/images/006_rsa.png" alt="Configural Shape Score across models">
         <div class="figure-caption">
-          We used representational similarity analysis to test how models encode configural shape using a 
-          controlled set of image pairs that independently varied object category and puzzle part composition. 
-          High-CSS models like EVA-CLIP began with higher part-based similarity in early layers, but midway 
-          through the network, representations shifted to reflect object category over local features. By the 
-          final layers, images with different parts but the same category were more similar than anagram pairs 
-          with identical parts. In contrast, low-CSS models like ResNet-50 retained strong part-based similarity 
-          throughout, showing only weak category abstraction at the end. These results show that configural shape 
-          perception involves a mid-to-late transition — from encoding local pieces to capturing relational 
-          structure among parts.
+          To further probe the nature of configural shape representations, we performed a 
+          representational similarity analysis (RSA) using a controlled set of image pairs that 
+          independently varied object category and puzzle part composition. We compared model 
+          embeddings across three pair types: (1) images with the same puzzle pieces but different 
+          categories (anagram pairs), (2) images with different pieces and different categories 
+          (but matched in category difference with anagram pairs), and 
+          (3) images with different pieces but the same category. 
+          In high-CSS models like EVA-CLIP, early layers exhibited representational similarity based on 
+          shared puzzle components, but just past the network's midpoint, a clear switch occurs: 
+          representations begin to reflect object category more than the shared puzzle components. By 
+          the final layers, same-category pairs—even with different parts—show greater similarity than 
+          anagram pairs with identical parts, indicating that category-level structure overrides local 
+          feature similarity. In contrast, low-CSS models like ResNet-50 maintain part-based similarity 
+          throughout the hierarchy, with only marginal increases in category-level abstraction by the 
+          final layer.To quantify this effect across models, we computed two summary metrics from the final layer: puzzle 
+          component influence and category influence and compared them to the Configural Shape Score. These 
+          results showed that models with higher configural shape scores transition from representations that 
+          are initially dominated by local parts, to representations that are dominated by a holistic view 
+          that depends on the configuration of parts — i.e., encodes the image as more than the sum of its 
+          parts, specifically in terms of relationships between those parts.
         </div>
       </div>
     </div>
